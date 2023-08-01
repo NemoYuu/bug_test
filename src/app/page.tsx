@@ -25,18 +25,23 @@ const inter = Inter({ subsets: ["latin"] });
 export default function Home() {
 
   const [rows, setRows] = useState<MyValue[]>([]);
+  // save current page to prevent fetching duplicate data
+  const [currentPage, setCurrentPage] = useState<Number>(-1)
+
   const getData = async (page: number) => {
-    const res = await fetch (`/api/data?page=${page}`, {
-      method: 'GET', 
-    })
-    if (!res.ok) {
-      throw new Error('Failed to fetch data')
+    if(page != currentPage) {
+      const res = await fetch (`/api/data?page=${page}`, {
+        method: 'GET', 
+      })
+      if (!res.ok) {
+        throw new Error('Failed to fetch data')
+      }
+      const {data} = await res.json()
+      setRows(data)
+      setCurrentPage(page)
     }
-    const {data} = await res.json()
-    setRows(data)
-
   }
-
+  // fetch data for first loading
   useEffect(() => {
     getData(0)
   }, [])
